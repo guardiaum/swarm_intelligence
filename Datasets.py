@@ -11,8 +11,32 @@ def load_csv(filename):
             dataset.append(row)
     return dataset
 
+
+# 2 classes
+def load_cancer():
+    dataset = load_csv('datasets/breast-cancer.data')
+
+    str_column_to_int(dataset, 0)
+    str_column_to_int(dataset, 1)
+    str_column_to_int(dataset, 2)
+    str_column_to_int(dataset, 3)
+    str_column_to_int(dataset, 4)
+    str_column_to_int(dataset, 5)
+    str_column_to_float(dataset, 6)
+    str_column_to_int(dataset, 7)
+    str_column_to_int(dataset, 8)
+    str_column_to_int(dataset, 9)
+
+    dataset = [[x[1], x[2], x[3], x[4], x[5], x[6], x[7], x[8], x[9], x[0]] for x in dataset]
+
+    # normalize input variables
+    minmax = dataset_minmax(dataset)
+
+    return normalize_dataset(dataset, minmax)
+
+
+# 2 classes
 def load_seeds():
-    global dataset
     dataset = load_csv('datasets/seeds_dataset.txt')
     for i in range(len(dataset[0]) - 1):
         str_column_to_float(dataset, i)
@@ -22,6 +46,8 @@ def load_seeds():
     minmax = dataset_minmax(dataset)
     return normalize_dataset(dataset, minmax)
 
+
+# 3 classes
 def load_iris():
     dataset = load_csv('datasets/iris.data')
     for i in range(len(dataset[0]) - 1):
@@ -32,10 +58,12 @@ def load_iris():
     minmax = dataset_minmax(dataset)
     return normalize_dataset(dataset, minmax)
 
+
 # converte colunas com strings para float
 def str_column_to_float(dataset, column):
     for row in dataset:
         row[column] = float(row[column].strip())
+
 
 # converte colunas com strings para inteiros
 def str_column_to_int(dataset, column):
@@ -48,10 +76,12 @@ def str_column_to_int(dataset, column):
         row[column] = lookup[row[column]]
     return lookup
 
+
 # Encontra o máximo e mínimo de cada coluna
 # Utilizado para normalizar os valores de entrada
 def dataset_minmax(dataset):
     return [[min(column), max(column)] for column in zip(*dataset)]
+
 
 # Normaliza as columnas do dataset para ficarem no intervalo 0-1
 def normalize_dataset(dataset, minmax):

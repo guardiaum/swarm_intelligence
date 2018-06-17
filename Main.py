@@ -6,20 +6,23 @@ from optimization_algorithms.GlobalSwarm import *
 import MLP
 import MLP_PSO
 
-# Test Backprop on Seeds dataset
 seed(1)
 
+# choose dataset
 dataset = Datasets.load_iris()
 
+classes = set([example[-1] for example in dataset])
+
 print("training examples: {}".format(len(dataset)))
+print("classes: {}".format(classes))
 
 # evaluate algorithm
 n_folds = 5
-l_rate = 0.3
-n_epoch = 100
-n_hidden = 5
+l_rate = 0.2
+n_epoch = 500
+n_hidden = 3
 
-MLP_PSO.run(dataset, n_particles=30, n_hidden=5, n_output=3, max_iter=1000)
+MLP_PSO.run(dataset, n_particles=100, n_hidden=5, n_output=len(classes), max_iter=500, v_lim=[-1, 1], p_lim=[-1, 1])
 
 '''
 # Para executar o backpropagation remover o bloco de comentario
