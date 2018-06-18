@@ -19,34 +19,24 @@ def forward_propagate(network, input_data, expected_outputs):
     b_hidden = copy.deepcopy(network["particle"]["b_hidden"])
     w_input = copy.deepcopy(network["particle"]["w_input"])
     w_hidden = copy.deepcopy(network["particle"]["w_hidden"])
-    c_input = copy.deepcopy(network["particle"]["c_input"])
-    c_hidden = copy.deepcopy(network["particle"]["c_hidden"])
-
-    #print("B: %s" % b_input)
-    #print("W: %s" % w_input)
-    #print("C: %s" % c_input)
 
     errors = 0
     for t, example in enumerate(input_data):
 
         for j in range(len(H)):  # para cada neurônio da camada escondida
-            if sum(c_input[j]) > 0:
-                activation_c_inp = 0.0
-                for i in range(len(example)):  # para cada atributo do exemplo de treinamento (camada de entrada)
-                    activation_c_inp += w_input[j][i] * example[i] + b_input[j]
+            activation_c_inp = 0.0
+            for i in range(len(example)):  # para cada atributo do exemplo de treinamento (camada de entrada)
+                activation_c_inp += w_input[j][i] * example[i] + b_input[j]
 
-                H[j] = transfer(activation_c_inp)
-
-        #H = [neuron for neuron in H if neuron is not None and neuron > 0]
+            H[j] = transfer(activation_c_inp)
 
         output_layer = [0] * n_output
         for k in range(n_output):  # para cada neurônio da camada de saída
-            if sum(c_hidden[k]) > 0:
-                activation_c_hid = 0.0
-                for j in range(len(H)):  # para cada neurônio na camada escondida
-                    activation_c_hid += w_hidden[k][j] * H[j] + b_hidden[k]
+            activation_c_hid = 0.0
+            for j in range(len(H)):  # para cada neurônio na camada escondida
+                activation_c_hid += w_hidden[k][j] * H[j] + b_hidden[k]
 
-                output_layer[k] = transfer(activation_c_hid)
+            output_layer[k] = transfer(activation_c_hid)
 
         prediction = output_layer.index(max(output_layer))
 
@@ -55,11 +45,10 @@ def forward_propagate(network, input_data, expected_outputs):
 
     network['particle'].update({'hidden': H})
     network['particle'].update({'error': errors / len(input_data)})
-    #print("Error: {}".format(network['particle']['error']))
 
     if network['particle']['error'] < network['p_best']['error']:
         network.update({'p_best': copy.deepcopy(network['particle'])})
-        #print("p_best: {}".format(network['p_best']['error']))
+        print("p_best: {}".format(network['p_best']['error']))
 
     return network
 
@@ -75,12 +64,8 @@ def initialize_population(n_particles, n_input, n_hidden, n_output):
         H = [0 for i in range(n_hidden)]
 
         # initialize biases vectors
-        B_input = [uniform(-1, 1) for i in range(n_hidden)]
-        B_hidden = [uniform(-1, 1) for i in range(n_output)]
-
-        # initialize connections matrices
-        C_input = [[0 for y in range(n_input)] for x in range(n_hidden)]
-        C_hidden = [[0 for y in range(n_hidden)] for x in range(n_output)]
+        B_input = [uniform(-1, 1)  for i in range(n_hidden)]
+        B_hidden = [uniform(-1, 1)  for i in range(n_output)]
 
         # initialize weight matrices
         W_input = [[uniform(-1, 1) for y in range(n_input)] for x in range(n_hidden)]
@@ -89,8 +74,6 @@ def initialize_population(n_particles, n_input, n_hidden, n_output):
         # initialize velocities
         v_b_input = [uniform(-1, 1) for i in range(n_hidden)]
         v_b_hidden = [uniform(-1, 1) for i in range(n_output)]
-        v_c_input = [[uniform(-1, 1) for y in range(n_input)] for x in range(n_hidden)]
-        v_c_hidden = [[uniform(-1, 1) for y in range(n_hidden)] for x in range(n_output)]
         v_w_input = [[uniform(-1, 1) for y in range(n_input)] for x in range(n_hidden)]
         v_w_hidden = [[uniform(-1, 1) for y in range(n_hidden)] for x in range(n_output)]
 
@@ -98,10 +81,8 @@ def initialize_population(n_particles, n_input, n_hidden, n_output):
             'particle': {'error': None,
                           'hidden': H, "n_output": n_output,
                           "v_b_input": v_b_input, "v_b_hidden": v_b_hidden,
-                          "v_c_input": v_c_input, "v_c_hidden": v_c_hidden,
                           "v_w_input": v_w_input, "v_w_hidden": v_w_hidden,
                           "b_input": B_input, "b_hidden": B_hidden,
-                          "c_input": C_input, "c_hidden": C_hidden,
                           "w_input": W_input, "w_hidden": W_hidden
             },
             'p_best': {'error': float('inf')}}
@@ -147,7 +128,7 @@ def run(X_train, X_val, y_train, y_val, n_particles, n_hidden, n_output, max_ite
         hist.append(g_best)
 
         # get error in validation ser for v_net_current and v_net_opt
-        if (i > 300) and (i % 100 == 0):
+        if (i > 500) and (i % 100 == 0):
 
             v_net_current = forward_propagate(g_best, X_val, y_val)
             min_v_net_from_hist = min(hist, key=lambda x: x['particle']['error'])
@@ -166,26 +147,28 @@ def run(X_train, X_val, y_train, y_val, n_particles, n_hidden, n_output, max_ite
 
 
 def get_iteration_data(g_best):
-    hidden = g_best['particle']['hidden']
-    connections_input = g_best['particle']['c_input']
-    connections_hidden = g_best['particle']['c_hidden']
-
     count_hidden_neurons = 0
     count_connections = 0
+
+    hidden = g_best['particle']['hidden']
 
     for i in range(len(hidden)):
         if hidden[i] > 0:
             count_hidden_neurons += 1
 
-    for i in range(len(connections_input)):
-        for j in range(len(connections_input[0])):
-            if connections_input[i][j] > 0:
-                count_connections += 1
+    if 'c_input' in g_best['particle']:
+        connections_input = g_best['particle']['c_input']
+        connections_hidden = g_best['particle']['c_hidden']
 
-    for i in range(len(connections_hidden)):
-        for j in range(len(connections_hidden[0])):
-            if connections_hidden[i][j] > 0:
-                count_connections += 1
+        for i in range(len(connections_input)):
+            for j in range(len(connections_input[0])):
+                if connections_input[i][j] > 0:
+                    count_connections += 1
+
+        for i in range(len(connections_hidden)):
+            for j in range(len(connections_hidden[0])):
+                if connections_hidden[i][j] > 0:
+                    count_connections += 1
 
     return g_best['particle']['error'], count_hidden_neurons, count_connections
 
@@ -209,8 +192,6 @@ def apply_cogn_coef_reducing(i, max_iter, c_i=1.55, c_f=2.55):
 def update_velocities(particle, g_best, c1, c2, v_lim):
     v_b_input = copy.deepcopy(particle['particle']["v_b_input"])
     v_b_hidden = copy.deepcopy(particle['particle']["v_b_hidden"])
-    v_c_input = copy.deepcopy(particle['particle']["v_c_input"])
-    v_c_hidden = copy.deepcopy(particle['particle']["v_c_hidden"])
     v_w_input = copy.deepcopy(particle['particle']["v_w_input"])
     v_w_hidden = copy.deepcopy(particle['particle']["v_w_hidden"])
 
@@ -218,9 +199,6 @@ def update_velocities(particle, g_best, c1, c2, v_lim):
 
     particle['particle']['v_b_input'], particle['particle']['v_b_hidden'] = \
         update_bias_velocity(g_best, particle, v_b_hidden, v_b_input, r1, r2, c1, c2, v_lim)
-
-    particle['particle']['v_c_input'], particle['particle']['v_c_hidden'] = \
-        update_connections_velocity(g_best, particle, v_c_hidden, v_c_input, r1, r2, c1, c2, v_lim)
 
     particle['particle']['v_w_input'], particle['particle']['v_w_hidden'] = \
         update_weights_velocity(g_best, particle, v_w_hidden, v_w_input, r1, r2, c1, c2, v_lim)
@@ -255,33 +233,6 @@ def update_weights_velocity(g_best, particle, v_w_hidden, v_w_input, r1, r2, c1,
     return copy.deepcopy(v_w_input), copy.deepcopy(v_w_hidden)
 
 
-def update_connections_velocity(g_best, particle, v_c_hidden, v_c_input, r1, r2, c1, c2, v_lim):
-    phi = c1 + c2
-    chi = 2 / (2 - phi - sqrt(phi ** 2 - 4 * phi))
-
-    for j in range(len(v_c_input)):  # input connections to neurons of hidden layer
-        for i in range(len(v_c_input[j])):  # each input connections to hidden neuron
-            v_c_input[j][i] = chi * (v_c_input[j][i] +
-                                  (c1 * r1 * (particle["p_best"]["c_input"][j][i] - particle['particle']["c_input"][j][i])) +
-                                  (c2 * r2 * (g_best['particle']["c_input"][j][i] - particle['particle']["c_input"][j][i])))
-            if v_c_input[j][i] > v_lim[1]:
-                v_c_input[j][i] = v_lim[1]
-            elif v_c_input[j][i] < v_lim[0]:
-                v_c_input[j][i] = v_lim[0]
-
-    for j in range(len(v_c_hidden)):  # hidden connections to neurons of output layer
-        for i in range(len(v_c_hidden[j])):  # each hidden connections to output neuron
-            v_c_hidden[j][i] = chi * (v_c_hidden[j][i] +
-                                   (c1 * r1 * (particle["p_best"]["c_hidden"][j][i] - particle['particle']["c_hidden"][j][i])) +
-                                   (c2 * r2 * (g_best['particle']["c_hidden"][j][i] - particle['particle']["c_hidden"][j][i])))
-            if v_c_hidden[j][i] > v_lim[1]:
-                v_c_hidden[j][i] = v_lim[1]
-            elif v_c_hidden[j][i] < v_lim[0]:
-                v_c_hidden[j][i] = v_lim[0]
-
-    return copy.deepcopy(v_c_input), copy.deepcopy(v_c_hidden)
-
-
 def update_bias_velocity(g_best, particle, v_b_hidden, v_b_input, r1, r2, c1, c2, v_lim):
     phi = c1 + c2
     chi = 2 / (2 - phi - sqrt(phi ** 2 - 4 * phi))
@@ -311,13 +262,10 @@ def update_bias_velocity(g_best, particle, v_b_hidden, v_b_input, r1, r2, c1, c2
 def update_positions(particle, p_lim):
     v_b_input = copy.deepcopy(particle['particle']["v_b_input"])
     v_b_hidden = copy.deepcopy(particle['particle']["v_b_hidden"])
-    v_c_input = copy.deepcopy(particle['particle']["v_c_input"])
-    v_c_hidden = copy.deepcopy(particle['particle']["v_c_hidden"])
     v_w_input = copy.deepcopy(particle['particle']["v_w_input"])
     v_w_hidden = copy.deepcopy(particle['particle']["v_w_hidden"])
 
     particle['particle']['b_input'], particle['particle']['b_hidden'] = update_bias(particle, v_b_input, v_b_hidden, p_lim)
-    particle['particle']['c_input'], particle['particle']['c_hidden'] = update_connections(particle, v_c_input, v_c_hidden, p_lim)
     particle['particle']['w_input'], particle['particle']['w_hidden'] = update_weights(particle, v_w_input, v_w_hidden, p_lim)
     return copy.deepcopy(particle)
 
@@ -341,29 +289,6 @@ def update_bias(particle, v_b_input, v_b_hidden, p_lim):
             b_hidden[i] = p_lim[0]
 
     return copy.deepcopy(b_input), copy.deepcopy(b_hidden)
-
-
-def update_connections(particle, v_c_input, v_c_hidden, p_lim):
-    c_input = particle['particle']['c_input']
-    c_hidden = particle['particle']['c_hidden']
-
-    for j in range(len(c_input)):  # input connections to neurons of hidden layer
-        for i in range(len(c_input[j])):  # each input connections to hidden neuron
-            c_input[j][i] = c_input[j][i] + v_c_input[j][i]
-            if c_input[j][i] > p_lim[1]:
-                c_input[j][i] = p_lim[1]
-            elif c_input[j][i] < p_lim[0]:
-                c_input[j][i] = p_lim[0]
-
-    for j in range(len(c_hidden)):  # input connections to neurons of hidden layer
-        for i in range(len(c_hidden[j])):  # each input connections to hidden neuron
-            c_hidden[j][i] = c_hidden[j][i] + v_c_hidden[j][i]
-            if c_hidden[j][i] > p_lim[1]:
-                c_hidden[j][i] = p_lim[1]
-            elif c_hidden[j][i] < p_lim[0]:
-                c_hidden[j][i] = p_lim[0]
-
-    return copy.deepcopy(c_input), copy.deepcopy(c_hidden)
 
 
 def update_weights(particle, v_w_input, v_w_hidden, p_lim):

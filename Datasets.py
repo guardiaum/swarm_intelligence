@@ -35,7 +35,7 @@ def load_cancer():
     return normalize_dataset(dataset, minmax)
 
 
-# 2 classes
+# 3 classes
 def load_seeds():
     dataset = load_csv('datasets/seeds_dataset.txt')
     for i in range(len(dataset[0]) - 1):
