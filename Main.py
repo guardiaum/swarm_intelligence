@@ -41,7 +41,7 @@ def mlp_pso_in_test_set(v_net_opt, X_test, y_test, method):
 # seed(1)
 
 # choose dataset
-dataset = Datasets.load_iris()
+dataset = Datasets.load_cancer()
 
 classes = set([example[-1] for example in dataset])
 
@@ -59,7 +59,7 @@ v_net_opt, output_by_iteration = MLP_PSO_W.run(X_train, X_val, y_train, y_val,
                                              n_output=len(classes), max_iter=5000,
                                              v_lim=[-1, 1], p_lim=[-1, 1])
 
-print_mlp_pso_results(v_net_opt, output_by_iteration, "output_mlp_pso_w.csv", MLP_PSO_W)
+print_mlp_pso_results(v_net_opt, output_by_iteration, "output_mlp_pso_w_cancer.csv", MLP_PSO_W)
 mlp_pso_in_test_set(v_net_opt, X_test, y_test, MLP_PSO_W)
 
 

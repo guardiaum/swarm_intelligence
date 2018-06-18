@@ -5,6 +5,13 @@ from random import random
 import copy
 
 
+def activate(weights, inputs, bias):
+    activation = bias
+    for i in range(len(weights)):
+        activation += weights[i] * inputs[i]
+    return activation
+
+
 # Transfere a ativação do neurônio
 def transfer(activation):
     return 1.0 / (1.0 + exp(-activation))
@@ -23,20 +30,15 @@ def forward_propagate(network, input_data, expected_outputs):
     errors = 0
     for t, example in enumerate(input_data):
 
-        for j in range(len(H)):  # para cada neurônio da camada escondida
-            activation_c_inp = 0.0
-            for i in range(len(example)):  # para cada atributo do exemplo de treinamento (camada de entrada)
-                activation_c_inp += w_input[j][i] * example[i] + b_input[j]
-
-            H[j] = transfer(activation_c_inp)
+        for j in range(len(H)):  # calcular a função de ativação para cada neurônio da camada escondida
+            H[j] = activate(w_input[j], example, b_input[j])
+            H[j] = transfer(H[j])
 
         output_layer = [0] * n_output
-        for k in range(n_output):  # para cada neurônio da camada de saída
-            activation_c_hid = 0.0
-            for j in range(len(H)):  # para cada neurônio na camada escondida
-                activation_c_hid += w_hidden[k][j] * H[j] + b_hidden[k]
 
-            output_layer[k] = transfer(activation_c_hid)
+        for k in range(n_output):  # calcular a função de ativação para cada neurônio da camada de saída
+            output_layer[k] = activate(w_hidden[k], H, b_hidden[k])
+            output_layer[k] = transfer(output_layer[k])
 
         prediction = output_layer.index(max(output_layer))
 
@@ -140,7 +142,6 @@ def run(X_train, X_val, y_train, y_val, n_particles, n_hidden, n_output, max_ite
             else:
                 g_loss = generalization_loss(v_net_opt, v_net_current)
                 stagnation_count = stagnation_count + 1
-
         i += 1
 
     return v_net_opt, output_by_iteration
@@ -175,7 +176,7 @@ def get_iteration_data(g_best):
 
 # generaliziation loss used to stop execution when reach criteria
 def generalization_loss(v_net_opt, v_net_current):
-    return 100 * ((float(v_net_current['particle']['error']) / float(v_net_opt['particle']['error'])) - 1)
+    return 100 * (v_net_current['particle']['error'] / v_net_opt['particle']['error']) - 1
 
 
 def apply_social_coef_reducing(i, max_iter, c_i=2.55, c_f=1.55):
@@ -213,8 +214,8 @@ def update_weights_velocity(g_best, particle, v_w_hidden, v_w_input, r1, r2, c1,
     for j in range(len(v_w_input)):  # input connections to neurons of hidden layer
         for i in range(len(v_w_input[j])):  # each input connections to hidden neuron
             v_w_input[j][i] = chi * (v_w_input[j][i] +
-                                  (c1 * r1 * (particle["p_best"]["w_input"][j][i] - particle['particle']["w_input"][j][i])) +
-                                  (c2 * r2 * (g_best['particle']["w_input"][j][i] - particle['particle']["w_input"][j][i])))
+                                  (c1 * r1 * (particle['p_best']['w_input'][j][i] - particle['particle']['w_input'][j][i])) +
+                                  (c2 * r2 * (g_best['particle']['w_input'][j][i] - particle['particle']['w_input'][j][i])))
             if v_w_input[j][i] > v_lim[1]:
                 v_w_input[j][i] = v_lim[1]
             elif v_w_input[j][i] < v_lim[0]:

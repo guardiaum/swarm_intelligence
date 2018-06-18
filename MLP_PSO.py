@@ -5,6 +5,13 @@ from random import random
 import copy
 
 
+def activate(weights, inputs, bias):
+    activation = bias
+    for i in range(len(weights)):
+        activation += weights[i] * inputs[i]
+    return activation
+
+
 # Transfere a ativação do neurônio
 def transfer(activation):
     return 1.0 / (1.0 + exp(-activation))
@@ -22,31 +29,21 @@ def forward_propagate(network, input_data, expected_outputs):
     c_input = copy.deepcopy(network["particle"]["c_input"])
     c_hidden = copy.deepcopy(network["particle"]["c_hidden"])
 
-    #print("B: %s" % b_input)
-    #print("W: %s" % w_input)
-    #print("C: %s" % c_input)
-
     errors = 0
     for t, example in enumerate(input_data):
 
         for j in range(len(H)):  # para cada neurônio da camada escondida
             if sum(c_input[j]) > 0:
-                activation_c_inp = 0.0
-                for i in range(len(example)):  # para cada atributo do exemplo de treinamento (camada de entrada)
-                    activation_c_inp += w_input[j][i] * example[i] + b_input[j]
-
-                H[j] = transfer(activation_c_inp)
-
-        #H = [neuron for neuron in H if neuron is not None and neuron > 0]
+                H[j] = activate(w_input[j], example, b_input[j])
+                H[j] = transfer(H[j])
 
         output_layer = [0] * n_output
+
         for k in range(n_output):  # para cada neurônio da camada de saída
             if sum(c_hidden[k]) > 0:
-                activation_c_hid = 0.0
-                for j in range(len(H)):  # para cada neurônio na camada escondida
-                    activation_c_hid += w_hidden[k][j] * H[j] + b_hidden[k]
-
-                output_layer[k] = transfer(activation_c_hid)
+                weights = [w for i, w in enumerate(w_hidden[k]) if H[i] > 0]
+                output_layer[k] = activate(weights, H, b_hidden[k])
+                output_layer[k] = transfer(output_layer[k])
 
         prediction = output_layer.index(max(output_layer))
 
@@ -55,7 +52,6 @@ def forward_propagate(network, input_data, expected_outputs):
 
     network['particle'].update({'hidden': H})
     network['particle'].update({'error': errors / len(input_data)})
-    #print("Error: {}".format(network['particle']['error']))
 
     if network['particle']['error'] < network['p_best']['error']:
         network.update({'p_best': copy.deepcopy(network['particle'])})
@@ -147,7 +143,8 @@ def run(X_train, X_val, y_train, y_val, n_particles, n_hidden, n_output, max_ite
         hist.append(g_best)
 
         # get error in validation ser for v_net_current and v_net_opt
-        if (i > 300) and (i % 100 == 0):
+
+        if (i > 500) and (i % 100 == 0):
 
             v_net_current = forward_propagate(g_best, X_val, y_val)
             min_v_net_from_hist = min(hist, key=lambda x: x['particle']['error'])
