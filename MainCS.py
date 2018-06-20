@@ -1,12 +1,10 @@
 from random import seed
 import Datasets
-import Evaluate
 from optimization_algorithms import Backpropagation
-from optimization_algorithms.CuckooSearch import *
-import MLP
 import MLP_CS_W
 from sklearn.model_selection import train_test_split
 import csv
+from beans import function as fn
 
 
 def print_mlp_cs_results(v_net_opt, output_by_iteration, filename, method):
@@ -36,7 +34,7 @@ def mlp_cs_in_test_set(v_net_opt, X_test, y_test, method):
     test = fn.forward_propagate(v_net_opt, X_test, y_test)
     print("v_net_opt error test set: {}".format(test['error']))
 
-dataset = Datasets.load_seeds()
+dataset = Datasets.load_iris()
 
 classes = set([example[-1] for example in dataset])
 
@@ -55,17 +53,8 @@ l_rate = 0.2
 n_epoch = 500
 n_hidden = 3
 
-cf = Config ()
-
 #for trial in range(cf.get_trial()):
 v_net_opt, output_by_iteration = MLP_CS_W.run(X_train, X_val, y_train, y_val, n_hidden=5, n_output=len(classes))
 
 print_mlp_cs_results(v_net_opt, output_by_iteration, "output_mlp_cs_w_cancer.csv", MLP_CS_W)
 mlp_cs_in_test_set(v_net_opt, X_test, y_test, MLP_CS_W)
-
-'''
-	# Para executar o backpropagation remover o bloco de comentario
-	scores = Evaluate.evaluate_algorithm(dataset, Backpropagation.backpropagation, n_folds, l_rate, n_epoch, n_hidden)
-	print('Scores: %s' % scores)
-	print('Mean Accuracy: %.3f%%' % (sum(scores)/float(len(scores))))
-'''

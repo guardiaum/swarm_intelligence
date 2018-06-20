@@ -83,7 +83,7 @@ def run(X_train, X_val, y_train, y_val, n_hidden, n_output):
 
         print("best_error: {}".format(BestFitness))
 
-        output_by_iteration.append([i, get_iteration_data(Bestnet)])
+        output_by_iteration.append([iteration, get_iteration_data(Bestnet)])
 
         hist.append(Bestnet)
 
