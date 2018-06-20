@@ -1,0 +1,71 @@
+from random import seed
+import Datasets
+import Evaluate
+from optimization_algorithms import Backpropagation
+from optimization_algorithms.CuckooSearch import *
+import MLP
+import MLP_CS_W
+from sklearn.model_selection import train_test_split
+import csv
+
+
+def print_mlp_cs_results(v_net_opt, output_by_iteration, filename, method):
+    # count connections for best network
+    net_error, count_hidden_neurons, count_connections = method.get_iteration_data(v_net_opt)
+    print("v_net_opt error: {}".format(net_error))
+    print("v_net_opt n_hidden: {}".format(count_hidden_neurons))
+    print("v_net_opt n_connect: {}".format(count_connections))
+    print("v_net_opt hidden: {}".format(v_net_opt['hidden']))
+    print("v_net_opt b_input: {}".format(v_net_opt['b_input']))
+    print("v_net_opt b_hidden: {}".format(v_net_opt['b_hidden']))
+    print("v_net_opt w_input: {}".format(v_net_opt['w_input']))
+    print("v_net_opt w_hidden: {}".format(v_net_opt['w_hidden']))
+
+    if 'c_input' in v_net_opt:
+        print("v_net_opt c_input: {}".format(v_net_opt['c_input']))
+        print("v_net_opt c_hidden: {}".format(v_net_opt['c_hidden']))
+
+    with open(filename, 'w') as f:
+        writer = csv.writer(f)
+        for iteration, triple in output_by_iteration:
+            triple = list(triple)
+            writer.writerow([iteration, triple[0], triple[1], triple[2]])
+
+
+def mlp_cs_in_test_set(v_net_opt, X_test, y_test, method):
+    test = fn.forward_propagate(v_net_opt, X_test, y_test)
+    print("v_net_opt error test set: {}".format(test['error']))
+
+dataset = Datasets.load_seeds()
+
+classes = set([example[-1] for example in dataset])
+
+print("training examples: {}".format(len(dataset)))
+print("classes: {}".format(classes))
+
+x = [example[0:len(example)-1] for example in dataset]
+y = [example[-1] for example in dataset]
+
+X_train, X_test, y_train, y_test = train_test_split(x, y, test_size=0.25, random_state=1)
+X_train, X_val, y_train, y_val = train_test_split(X_train, y_train, test_size=0.25, random_state=1)
+
+# evaluate algorithm
+n_folds = 5
+l_rate = 0.2
+n_epoch = 500
+n_hidden = 3
+
+cf = Config ()
+
+#for trial in range(cf.get_trial()):
+v_net_opt, output_by_iteration = MLP_CS_W.run(X_train, X_val, y_train, y_val, n_hidden=5, n_output=len(classes))
+
+print_mlp_cs_results(v_net_opt, output_by_iteration, "output_mlp_cs_w_cancer.csv", MLP_CS_W)
+mlp_cs_in_test_set(v_net_opt, X_test, y_test, MLP_CS_W)
+
+'''
+	# Para executar o backpropagation remover o bloco de comentario
+	scores = Evaluate.evaluate_algorithm(dataset, Backpropagation.backpropagation, n_folds, l_rate, n_epoch, n_hidden)
+	print('Scores: %s' % scores)
+	print('Mean Accuracy: %.3f%%' % (sum(scores)/float(len(scores))))
+'''
