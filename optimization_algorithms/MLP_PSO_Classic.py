@@ -1,13 +1,10 @@
 import copy
-import Datasets
 from random import uniform
 from random import random
 from math import exp
-from sklearn.model_selection import train_test_split
 
 
-def initialize_population(n_particles, n_hidden, n_output):
-    n_input = len(X_train[0])
+def initialize_population(n_particles, n_input, n_hidden, n_output):
     population = []
     for i in range(n_particles):
 
@@ -17,7 +14,7 @@ def initialize_population(n_particles, n_hidden, n_output):
         v_w_input = [[uniform(-1, 1) for i in range(n_input + 1)] for j in range(n_hidden)]
         v_w_hidden = [[uniform(-1, 1) for i in range(n_hidden + 1)] for j in range(n_output)]
 
-        particle = {'particle': {'hidden_neurons': hidden_neurons, 'error': float('inf'), 'n_output': n_output,
+        particle = {'particle': {'hidden': hidden_neurons, 'error': float('inf'), 'n_output': n_output,
                                  'w_input': w_input, 'w_hidden': w_hidden,
                                  'v_w_input': v_w_input, 'v_w_hidden': v_w_hidden},
                     'p_best': {'error': float('inf')}}
@@ -44,7 +41,7 @@ def transfer(activation):
 
 def forward_propagate(network, input_data, expected_outputs):
 
-    H = copy.deepcopy(network["particle"]["hidden_neurons"])
+    H = copy.deepcopy(network["particle"]["hidden"])
     n_output = copy.deepcopy(network["particle"]["n_output"])
     w_input = copy.deepcopy(network["particle"]["w_input"])
     w_hidden = copy.deepcopy(network["particle"]["w_hidden"])
@@ -72,6 +69,7 @@ def forward_propagate(network, input_data, expected_outputs):
     classification_error = error / len(input_data)
     #print("ERROR: %s" % (classification_error))
 
+    network['particle'].update({'hidden': H})
     network['particle'].update({'error': classification_error})
 
     if network['particle']['error'] < network['p_best']['error']:
@@ -81,9 +79,7 @@ def forward_propagate(network, input_data, expected_outputs):
     return network
 
 
-def update_velocity(particle, g_best, v_lim):
-    c1, c2 = 2.55, 2.55
-    inertia_weight = 0.8
+def update_velocity(particle, g_best, inertia_weight, c1, c2, v_lim):
 
     v_w_input = copy.deepcopy(particle['particle']['v_w_input'])
     x_w_inp = particle['particle']['w_input']
@@ -147,33 +143,66 @@ def update_position(particle, p_lim):
     return copy.deepcopy(particle)
 
 
-dataset = Datasets.load_seeds()
+def run(X_train, X_val, y_train, y_val,
+        n_particles, n_hidden, n_output,
+        max_iter, inertia_weight, c1, c2, v_lim, p_lim):
 
-classes = set([example[-1] for example in dataset])
+    population = initialize_population(n_particles, len(X_train[0]), n_hidden, n_output)
 
-print("training examples: {}".format(len(dataset)))
-print("classes: {}".format(classes))
+    g_best = {'particle': {"error": float('inf')}}
+    g_loss = 0
+    stagnation_count = 0
+    v_net_opt = None
+    hist = []
+    output_by_iteration = []
+    i = 0
 
-x = [example[0:len(example)-1] for example in dataset]
-y = [example[-1] for example in dataset]
+    while i < max_iter and g_loss < 5 and stagnation_count < 3:
+        for p in range(len(population)):
+            particle = forward_propagate(population[p], X_train, y_train)
 
-X_train, X_test, y_train, y_test = train_test_split(x, y, test_size=0.25, random_state=1)
-X_train, X_val, y_train, y_val = train_test_split(X_train, y_train, test_size=0.25, random_state=1)
+            if particle['particle']["error"] < g_best['particle']["error"]:
+                g_best.update(copy.deepcopy(particle))
 
-population = initialize_population(30, 3, len(classes))
+            particle = update_velocity(particle, g_best, inertia_weight, c1, c2, v_lim)
+            population[p] = update_position(particle, p_lim)
 
-g_best = {'particle': {"error": float('inf')}}
-i = 0
+        print("i: {}, g_best: {}".format(i, g_best['particle']['error']))
 
-while i < 1000:
-    for p in range(len(population)):
-        particle = forward_propagate(population[p], X_train, y_train)
+        output_by_iteration.append([i, get_iteration_data(g_best)])
 
-        if particle['particle']["error"] < g_best['particle']["error"]:
-            g_best.update(copy.deepcopy(particle))
+        hist.append(g_best)
 
-        particle = update_velocity(particle, g_best, v_lim=[-1,1])
-        population[p] = update_position(particle, p_lim=[-1, 1])
+        # get error in validation ser for v_net_current and v_net_opt
+        if (i > 300) and (i % 100 == 0):
 
-    print("i: {}, g_best: {}".format(i, g_best['particle']['error']))
-    i += 1
+            v_net_current = forward_propagate(g_best, X_val, y_val)
+            min_v_net_from_hist = min(hist, key=lambda x: x['particle']['error'])
+            v_net_opt = forward_propagate(min_v_net_from_hist, X_val, y_val)
+
+            if v_net_current['particle']["error"] < v_net_opt['particle']["error"]:
+                v_net_opt = v_net_current
+                stagnation_count = 0
+            else:
+                g_loss = generalization_loss(v_net_opt, v_net_current)
+                stagnation_count = stagnation_count + 1
+
+        i += 1
+    return v_net_opt, output_by_iteration
+
+def get_iteration_data(g_best):
+    count_hidden_neurons = 0
+    count_connections = 'ALL'
+
+    hidden = g_best['particle']['hidden']
+
+    for i in range(len(hidden)):
+        if hidden[i] > 0:
+            count_hidden_neurons += 1
+
+    return g_best['particle']['error'], count_hidden_neurons, count_connections
+
+
+# generaliziation loss used to stop execution when reach criteria
+def generalization_loss(v_net_opt, v_net_current):
+    return 100 * (v_net_current['particle']['error'] / v_net_opt['particle']['error']) - 1

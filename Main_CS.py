@@ -1,8 +1,7 @@
-from random import seed
-import Datasets
-from optimization_algorithms import Backpropagation
-import MLP_CS_W
+from util import Datasets
+from optimization_algorithms import MLP_CS_W
 from sklearn.model_selection import train_test_split
+from util import Results
 import csv
 from beans import function as fn
 
@@ -31,7 +30,7 @@ def print_mlp_cs_results(v_net_opt, output_by_iteration, filename, method):
 
 
 def mlp_cs_in_test_set(v_net_opt, X_test, y_test, method):
-    test = fn.forward_propagate(v_net_opt, X_test, y_test)
+    test = method.forward_propagate(v_net_opt, X_test, y_test)
     print("v_net_opt error test set: {}".format(test['error']))
 
 dataset = Datasets.load_iris()
@@ -47,14 +46,7 @@ y = [example[-1] for example in dataset]
 X_train, X_test, y_train, y_test = train_test_split(x, y, test_size=0.25, random_state=1)
 X_train, X_val, y_train, y_val = train_test_split(X_train, y_train, test_size=0.25, random_state=1)
 
-# evaluate algorithm
-n_folds = 5
-l_rate = 0.2
-n_epoch = 500
-n_hidden = 3
-
-#for trial in range(cf.get_trial()):
 v_net_opt, output_by_iteration = MLP_CS_W.run(X_train, X_val, y_train, y_val, n_hidden=5, n_output=len(classes))
 
-print_mlp_cs_results(v_net_opt, output_by_iteration, "output_mlp_cs_w_cancer.csv", MLP_CS_W)
-mlp_cs_in_test_set(v_net_opt, X_test, y_test, MLP_CS_W)
+print_mlp_cs_results(v_net_opt, output_by_iteration, "results/output_mlp_cs_w_cancer.csv", MLP_CS_W)
+mlp_cs_in_test_set(v_net_opt, X_test, y_test, fn)

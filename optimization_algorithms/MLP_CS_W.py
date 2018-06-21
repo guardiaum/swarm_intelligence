@@ -6,18 +6,11 @@ import copy
 import beans.function as fn
 
 
-
-
 def run(X_train, X_val, y_train, y_val, n_hidden, n_output):
-    cf = Config ()
+    cf = Config()
 
     # input neurons
     n_input = len(X_train[0])
-
-    #training_examples = [example[0:len(example)-1] for example in input_data]
-    #expected_outputs = [example[-1] for example in input_data]
-
-    
 
     # initialize population
     n_eggs = cf.get_population_size()
@@ -108,27 +101,13 @@ def run(X_train, X_val, y_train, y_val, n_hidden, n_output):
 
 def get_iteration_data(egg_best):
     count_hidden_neurons = 0
-    count_connections = 0
+    count_connections = 'ALL'
 
     hidden = egg_best['hidden']
 
     for i in range(len(hidden)):
         if hidden[i] > 0:
             count_hidden_neurons += 1
-
-    if 'c_input' in egg_best:
-        connections_input = egg_best['c_input']
-        connections_hidden = egg_best['c_hidden']
-
-        for i in range(len(connections_input)):
-            for j in range(len(connections_input[0])):
-                if connections_input[i][j] > 0:
-                    count_connections += 1
-
-        for i in range(len(connections_hidden)):
-            for j in range(len(connections_hidden[0])):
-                if connections_hidden[i][j] > 0:
-                    count_connections += 1
 
     return egg_best['error'], count_hidden_neurons, count_connections
 

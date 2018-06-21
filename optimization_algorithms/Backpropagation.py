@@ -1,4 +1,5 @@
-import MLP
+from optimization_algorithms import MLP
+
 
 # Algoritmo de backpropagation com Stochastic Gradient Descent
 def backpropagation(train, test, l_rate, n_epoch, n_hidden):

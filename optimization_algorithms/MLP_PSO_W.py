@@ -66,8 +66,8 @@ def initialize_population(n_particles, n_input, n_hidden, n_output):
         H = [0 for i in range(n_hidden)]
 
         # initialize biases vectors
-        B_input = [uniform(-1, 1)  for i in range(n_hidden)]
-        B_hidden = [uniform(-1, 1)  for i in range(n_output)]
+        B_input = [uniform(-1, 1) for i in range(n_hidden)]
+        B_hidden = [uniform(-1, 1) for i in range(n_output)]
 
         # initialize weight matrices
         W_input = [[uniform(-1, 1) for y in range(n_input)] for x in range(n_hidden)]
@@ -81,11 +81,11 @@ def initialize_population(n_particles, n_input, n_hidden, n_output):
 
         population[particle] = {
             'particle': {'error': None,
-                          'hidden': H, "n_output": n_output,
-                          "v_b_input": v_b_input, "v_b_hidden": v_b_hidden,
-                          "v_w_input": v_w_input, "v_w_hidden": v_w_hidden,
-                          "b_input": B_input, "b_hidden": B_hidden,
-                          "w_input": W_input, "w_hidden": W_hidden
+                         'hidden': H, "n_output": n_output,
+                         'v_b_input': v_b_input, 'v_b_hidden': v_b_hidden,
+                         'v_w_input': v_w_input, 'v_w_hidden': v_w_hidden,
+                         'b_input': B_input, 'b_hidden': B_hidden,
+                         'w_input': W_input, 'w_hidden': W_hidden
             },
             'p_best': {'error': float('inf')}}
 
@@ -101,7 +101,7 @@ def run(X_train, X_val, y_train, y_val, n_particles, n_hidden, n_output, max_ite
     i = 0
     stagnation_count = 0
     g_loss = 0
-    g_best = {'particle': {"error": float('inf')}}
+    g_best = {'particle': {'error': float('inf')}}
     v_net_opt = None
     hist = []
     output_by_iteration = []
@@ -130,7 +130,7 @@ def run(X_train, X_val, y_train, y_val, n_particles, n_hidden, n_output, max_ite
         hist.append(g_best)
 
         # get error in validation ser for v_net_current and v_net_opt
-        if (i > 500) and (i % 100 == 0):
+        if (i > 300) and (i % 100 == 0):
 
             v_net_current = forward_propagate(g_best, X_val, y_val)
             min_v_net_from_hist = min(hist, key=lambda x: x['particle']['error'])
@@ -149,27 +149,13 @@ def run(X_train, X_val, y_train, y_val, n_particles, n_hidden, n_output, max_ite
 
 def get_iteration_data(g_best):
     count_hidden_neurons = 0
-    count_connections = 0
+    count_connections = 'ALL'
 
     hidden = g_best['particle']['hidden']
 
     for i in range(len(hidden)):
         if hidden[i] > 0:
             count_hidden_neurons += 1
-
-    if 'c_input' in g_best['particle']:
-        connections_input = g_best['particle']['c_input']
-        connections_hidden = g_best['particle']['c_hidden']
-
-        for i in range(len(connections_input)):
-            for j in range(len(connections_input[0])):
-                if connections_input[i][j] > 0:
-                    count_connections += 1
-
-        for i in range(len(connections_hidden)):
-            for j in range(len(connections_hidden[0])):
-                if connections_hidden[i][j] > 0:
-                    count_connections += 1
 
     return g_best['particle']['error'], count_hidden_neurons, count_connections
 
