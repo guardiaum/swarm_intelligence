@@ -190,6 +190,7 @@ def run(X_train, X_val, y_train, y_val,
         i += 1
     return v_net_opt, output_by_iteration
 
+
 def get_iteration_data(g_best):
     count_hidden_neurons = 0
     count_connections = 'ALL'

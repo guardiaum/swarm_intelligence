@@ -18,7 +18,7 @@ X_train, X_val, y_train, y_val = train_test_split(X_train, y_train, test_size=0.
 
 v_net_opt, output_by_iteration = MLP_PSO_FIPS.run(X_train, X_val, y_train, y_val,
         n_particles=30, n_hidden=3, n_output=len(classes),
-        max_iter=1000, neighborhood_size=4, weight_method='static',
+        max_iter=1000, neighborhood_size=2, weight_method='distance',
         inertia_weight=0.7298, p_lim=[-1, 1])
 
 Results.print_results(v_net_opt, output_by_iteration, "results/output_mlp_pso_fips_cancer.csv", MLP_PSO_FIPS)

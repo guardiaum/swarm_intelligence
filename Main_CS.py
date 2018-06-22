@@ -33,6 +33,7 @@ def mlp_cs_in_test_set(v_net_opt, X_test, y_test, method):
     test = method.forward_propagate(v_net_opt, X_test, y_test)
     print("v_net_opt error test set: {}".format(test['error']))
 
+
 dataset = Datasets.load_iris()
 
 classes = set([example[-1] for example in dataset])
