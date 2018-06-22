@@ -49,3 +49,13 @@ class Neighborhood(object):
             neighbors.append(swarm[distances[j][0]])
 
         return neighbors
+
+    @staticmethod
+    def get_neighbors(target, swarm, n_size):
+        indexes = Neighborhood.get_static(target, n_size, len(swarm))
+
+        neighbors = []
+        for i in range(len(indexes)):
+            neighbors.append(swarm[indexes[i]])
+
+        return neighbors
