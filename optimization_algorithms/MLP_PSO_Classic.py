@@ -206,4 +206,6 @@ def get_iteration_data(g_best):
 
 # generaliziation loss used to stop execution when reach criteria
 def generalization_loss(v_net_opt, v_net_current):
-    return 100 * (v_net_current['particle']['error'] / v_net_opt['particle']['error']) - 1
+    if v_net_opt['particle']['error'] == 0:
+        return 0
+    else: return 100 * (v_net_current['particle']['error'] / v_net_opt['particle']['error']) - 1

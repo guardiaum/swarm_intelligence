@@ -30,4 +30,6 @@ def print_results(v_net_opt, output_by_iteration, filename, method):
 
 def run_in_test_set(v_net_opt, X_test, y_test, method):
     test = method.forward_propagate(v_net_opt, X_test, y_test)
-    print("v_net_opt error test set: {}".format(test['particle']['error']))
+    accuracy = (1 - test['particle']['error']) * 100
+    print("v_net_opt error on test set: {}".format(test['particle']['error']))
+    print("v_net_opt accuracy on test set: {}%".format(accuracy))

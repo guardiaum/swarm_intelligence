@@ -1,7 +1,6 @@
 from util import Datasets
 from optimization_algorithms import MLP_CS_W
 from sklearn.model_selection import train_test_split
-from util import Results
 import csv
 from beans import function as fn
 
