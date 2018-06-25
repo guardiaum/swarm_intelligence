@@ -35,7 +35,7 @@ def run(X_train, X_val, y_train, y_val, n_hidden, n_output):
 
     
     #for iteration in range(cf.get_iteration()):
-        print("iteration: {}".format(iteration))
+        ##print("iteration: {}".format(iteration))
         # computes eggs local best (pBest) with lower training error
 
         for i in range(len(population)):
@@ -67,24 +67,26 @@ def run(X_train, X_val, y_train, y_val, n_hidden, n_output):
         if population[0].get_fitness() < BestFitness:
             BestFitness = population[0].get_fitness()
             Bestnet = copy.deepcopy(population[0].get_net())
-            print("best_error: {}".format(BestFitness))
+            #print("best_error: {}".format(BestFitness))
 
         #sys.stdout.write("\n\r Trial:%3d , Iteration:%7d, BestFitness:%.4f" % (trial , iteration, BestFitness))
 
            # results_list.append(str(BestFitness))
         
 
-        print("best_error: {}".format(BestFitness))
+        #print("best_error: {}".format(BestFitness))
 
-        output_by_iteration.append([iteration, get_iteration_data(Bestnet)])
+        print("iteration: {}".format(iteration), "best_error: {}".format(BestFitness))
+
+        output_by_iteration.append([iteration, fn.get_iteration_data(Bestnet)])
 
         hist.append(Bestnet)
 
 
         # get error in validation ser for v_net_current and v_net_opt
-        if ((iteration > 500) and (iteration % 100 == 0)) or iteration == cf.get_iteration() - 1:
+        if ((iteration > 300) and (iteration % 100 == 0)) or iteration == cf.get_iteration() - 1:
 
-            v_net_current = fn.forward_propagate(Bestnet, X_train, y_train)
+            v_net_current = fn.forward_propagate(Bestnet, X_val, y_val)
             min_net_from_hist = copy.deepcopy(min(hist, key=lambda x: x['error']))
             v_net_opt = fn.forward_propagate(min_net_from_hist, X_val, y_val)
 
@@ -99,18 +101,8 @@ def run(X_train, X_val, y_train, y_val, n_hidden, n_output):
     return v_net_opt, output_by_iteration
 
 
-def get_iteration_data(egg_best):
-    count_hidden_neurons = 0
-    count_connections = 'ALL'
-
-    hidden = egg_best['hidden']
-
-    for i in range(len(hidden)):
-        if hidden[i] > 0:
-            count_hidden_neurons += 1
-
-    return egg_best['error'], count_hidden_neurons, count_connections
-
-
+# generaliziation loss used to stop execution when reach criteria
 def generalization_loss(v_net_opt, v_net_current):
-    return 100 * (v_net_current['error'] /v_net_opt['error']) - 1
+    if v_net_opt['error'] == 0:
+        return 0
+    else: return 100 * (v_net_current['error'] / v_net_opt['error']) - 1

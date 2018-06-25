@@ -46,6 +46,18 @@ def forward_propagate(network, input_data, expected_outputs):
 
     return network
 
+def get_iteration_data(egg_best):
+    count_hidden_neurons = 0
+    count_connections = 'ALL'
+
+    hidden = egg_best['hidden']
+
+    for i in range(len(hidden)):
+        if hidden[i] > 0:
+            count_hidden_neurons += 1
+
+    return egg_best['error'], count_hidden_neurons, count_connections
+
 """# forward propagate examples to output prediction
 def forward_propagate(network, input_data, expected_outputs):
     H = network["hidden"]
