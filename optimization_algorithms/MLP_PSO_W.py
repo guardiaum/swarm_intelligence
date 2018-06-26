@@ -92,7 +92,7 @@ def initialize_population(n_particles, n_input, n_hidden, n_output):
     return population
 
 
-def run(X_train, X_val, y_train, y_val, n_particles, n_hidden, n_output, max_iter, v_lim, p_lim):
+def run(X_train, X_val, y_train, y_val, n_particles, n_hidden, n_output, max_iter, check_gloss, v_lim, p_lim):
     # input neurons
     n_input = len(X_train[0])
 
@@ -118,7 +118,7 @@ def run(X_train, X_val, y_train, y_val, n_particles, n_hidden, n_output, max_ite
                 g_best.update(copy.deepcopy(particle))
 
             c1 = apply_social_coef_reducing(i, max_iter, c_i=2.55, c_f=1.55)
-            c2 = apply_cogn_coef_reducing(i, max_iter, c_i=1.55, c_f=2.55)
+            c2 = apply_cogn_coef_increasing(i, max_iter, c_i=1.55, c_f=2.55)
 
             particle = update_velocities(particle, g_best, c1, c2, v_lim)
             population[p] = update_positions(particle, p_lim)
@@ -130,7 +130,7 @@ def run(X_train, X_val, y_train, y_val, n_particles, n_hidden, n_output, max_ite
         hist.append(g_best)
 
         # get error in validation ser for v_net_current and v_net_opt
-        if (i > 300) and (i % 100 == 0):
+        if (i > check_gloss) and (i % 100 == 0):
 
             v_net_current = forward_propagate(g_best, X_val, y_val)
             min_v_net_from_hist = min(hist, key=lambda x: x['particle']['error'])
@@ -170,7 +170,7 @@ def apply_social_coef_reducing(i, max_iter, c_i=2.55, c_f=1.55):
     return c1
 
 
-def apply_cogn_coef_reducing(i, max_iter, c_i=1.55, c_f=2.55):
+def apply_cogn_coef_increasing(i, max_iter, c_i=1.55, c_f=2.55):
     c2 = (c_f - c_i) * (i/max_iter) + c_i
     return c2
 

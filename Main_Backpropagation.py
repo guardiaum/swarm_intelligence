@@ -10,7 +10,7 @@ n_epoch = 500
 n_hidden = 3
 
 # choose dataset
-dataset = Datasets.load_cancer()
+dataset = Datasets.load_digits_as_list()
 
 classes = set([example[-1] for example in dataset])
 
@@ -33,7 +33,7 @@ for x in range(len(X_val)):
     X_val[x].append(y_val[x])
 
 
-network, output_by_iteration = Backpropagation.backpropagation(X_train, l_rate, n_epoch, n_hidden)
+network, output_by_iteration = Backpropagation.backpropagation(X_train, l_rate, n_epoch, n_hidden, n_outputs=len(classes))
 
 with open('results/output_backpropagation_cancer.csv', 'w') as f:
     writer = csv.writer(f)

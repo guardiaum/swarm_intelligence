@@ -6,7 +6,7 @@ import copy
 import beans.function as fn
 
 
-def run(X_train, X_val, y_train, y_val, n_hidden, n_output):
+def run(X_train, X_val, y_train, y_val, check_gloss, n_hidden, n_output):
     cf = Config()
 
     # input neurons
@@ -84,7 +84,7 @@ def run(X_train, X_val, y_train, y_val, n_hidden, n_output):
 
 
         # get error in validation ser for v_net_current and v_net_opt
-        if ((iteration > 300) and (iteration % 100 == 0)) or iteration == cf.get_iteration() - 1:
+        if ((iteration > check_gloss) and (iteration % 100 == 0)) or iteration == cf.get_iteration() - 1:
 
             v_net_current = fn.forward_propagate(Bestnet, X_val, y_val)
             min_net_from_hist = copy.deepcopy(min(hist, key=lambda x: x['error']))

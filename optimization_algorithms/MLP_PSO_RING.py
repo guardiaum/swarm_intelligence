@@ -164,7 +164,7 @@ def generalization_loss(v_net_opt, v_net_current):
 
 def run(X_train, X_val, y_train, y_val,
         n_particles, n_hidden, n_output,
-        max_iter, neighborhood_size, inertia_weight, c1, c2, v_lim, p_lim):
+        max_iter, check_gloss, neighborhood_size, inertia_weight, c1, c2, v_lim, p_lim):
 
     population = initialize_population(n_particles, len(X_train[0]), n_hidden, n_output)
 
@@ -211,7 +211,7 @@ def run(X_train, X_val, y_train, y_val,
         hist.append(g_best)
 
         # get error in validation ser for v_net_current and v_net_opt
-        if (i > 500) and (i % 100 == 0):
+        if (i > check_gloss) and (i % 100 == 0):
 
             v_net_current = forward_propagate(g_best, X_val, y_val)
             min_v_net_from_hist = min(hist, key=lambda x: x['particle']['error'])

@@ -49,9 +49,9 @@ def predict(network, row):
     return outputs.index(max(outputs))
 
 # Algoritmo de backpropagation com Stochastic Gradient Descent
-def backpropagation(train, l_rate, n_epoch, n_hidden):
+def backpropagation(train, l_rate, n_epoch, n_hidden, n_outputs):
     n_inputs = len(train[0]) - 1  # input neurons
-    n_outputs = len(set([row[-1] for row in train]))  # output neurons
+    #n_outputs = len(set([row[-1] for row in train]))  # output neurons
 
     network = initialize_network(n_inputs, n_hidden, n_outputs)
 

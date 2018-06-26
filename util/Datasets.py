@@ -1,4 +1,10 @@
 from csv import reader
+from sklearn.datasets import load_diabetes, load_wine, load_digits
+from sklearn import preprocessing
+from sklearn.preprocessing import Imputer
+import numpy as np
+import pandas as pd
+
 
 # carrega arquivo csv
 def load_csv(filename):
@@ -10,6 +16,124 @@ def load_csv(filename):
                 continue
             dataset.append(row)
     return dataset
+
+
+def load_diabetes_as_list():
+    dataset = load_diabetes()
+
+    data = dataset.get('data')
+    label = dataset.get('target')
+
+    min_max_scaler = preprocessing.MinMaxScaler()
+    X = min_max_scaler.fit_transform(data)
+    data = X.tolist()
+
+    dataset = list()
+
+    for i in range(len(data)):
+        aux = list()
+        for d in data[i]:
+            aux.append(d)
+        aux.append(label[i])
+        dataset.append(aux)
+
+    # convert class column to integers
+    str_column_to_int(dataset, len(dataset[0]) - 1)
+
+    return dataset
+
+
+def load_digits_as_list():
+    dataset = load_digits()
+
+    data = dataset.get('data')
+    label = dataset.get('target')
+
+    min_max_scaler = preprocessing.MinMaxScaler()
+    X = min_max_scaler.fit_transform(data)
+    data = X.tolist()
+
+    dataset = list()
+
+    for i in range(len(data)):
+        aux = list()
+        for d in data[i]:
+            aux.append(d)
+        aux.append(label[i])
+        dataset.append(aux)
+
+    # convert class column to integers
+    str_column_to_int(dataset, len(dataset[0]) - 1)
+
+    return dataset
+
+
+def load_wine_as_list():
+    dataset = load_wine()
+
+    data = dataset.get('data')
+    label = dataset.get('target')
+
+    min_max_scaler = preprocessing.MinMaxScaler()
+    X = min_max_scaler.fit_transform(data)
+    data = X.tolist()
+
+    dataset = list()
+
+    for i in range(len(data)):
+        aux = list()
+        for d in data[i]:
+            aux.append(d)
+        aux.append(label[i])
+        dataset.append(aux)
+
+    # convert class column to integers
+    str_column_to_int(dataset, len(dataset[0]) - 1)
+
+    return dataset
+
+
+def load_heart():
+    dataset1 = pd.DataFrame(load_csv('datasets/Heart-Data/processed.cleveland.data'))
+    dataset2 = pd.DataFrame(load_csv('datasets/Heart-Data/processed.hungarian.data'))
+    dataset3 = pd.DataFrame(load_csv('datasets/Heart-Data/processed.switzerland.data'))
+    dataset4 = pd.DataFrame(load_csv('datasets/Heart-Data/processed.va.data'))
+
+    dataset = pd.concat([dataset1, dataset2, dataset3, dataset4])
+
+    dataset = tranform_data(dataset)
+
+    return dataset
+
+
+def tranform_data(dataset):
+    dataset = dataset.replace('?', np.nan)
+    dataset = dataset.dropna()
+    #imputer = Imputer("NaN", strategy="median", axis=0)
+
+    X_data = dataset[dataset.columns[0:len(dataset.columns) - 1]]
+    y_data = dataset[dataset.columns[-1]]
+
+    #X_data = imputer.fit_transform(X_data)
+
+    min_max_scaler = preprocessing.MinMaxScaler()
+
+    X = min_max_scaler.fit_transform(X_data)
+
+    data = X.tolist()
+
+    unique_labels = set(y_data)
+    lookup = dict()
+    labels = list()
+    for i, value in enumerate(unique_labels):
+        lookup[value] = i
+    for value in y_data:
+        labels.append(lookup[value])
+
+    for i, d in enumerate(data):
+        d.append(labels[i])
+
+    return data
 
 
 # 2 classes

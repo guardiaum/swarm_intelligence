@@ -4,7 +4,7 @@ from optimization_algorithms import MLP_PSO_W
 
 
 # choose dataset
-dataset = Datasets.load_iris()
+dataset = Datasets.load_heart()
 
 classes = set([example[-1] for example in dataset])
 
@@ -19,7 +19,7 @@ X_train, X_val, y_train, y_val = train_test_split(X_train, y_train, test_size=0.
 
 v_net_opt, output_by_iteration = MLP_PSO_W.run(X_train, X_val, y_train, y_val,
                                                n_particles=30, n_hidden=3,
-                                               n_output=len(classes), max_iter=600,
+                                               n_output=len(classes), max_iter=600, check_gloss=200,
                                                v_lim=[-1, 1], p_lim=[-1, 1])
 
 Results.print_results(v_net_opt, output_by_iteration, "results/output_mlp_pso_w_iris.csv", MLP_PSO_W)
