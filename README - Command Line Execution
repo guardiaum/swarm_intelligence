@@ -23,7 +23,7 @@ Específicos do fips e do ring:
 --k <quantidade de vizinhos>
 
 Só fips:
---wmethod <weight method>
+--wmethod <weight method>: static, distance ou fitness
 
 Exemplos de linhas de comando:
 
