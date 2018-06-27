@@ -17,8 +17,14 @@ algorithm = sys.argv[sys.argv.index("--alg") + 1]
 n_hidden = int(sys.argv[sys.argv.index("--hidden") + 1])
 max_iter = int(sys.argv[sys.argv.index("--maxiter") + 1])
 number_experiments = int(sys.argv[sys.argv.index("--trial") + 1])
+fips_method = ""
+dataset = ""
 
-dataset = eval("Datasets.load_%s()"%dataset_name)
+if dataset_name in ["wine", "digits"]:
+	dataset = eval("Datasets.load_%s_as_list()"%dataset_name)
+
+else:
+	dataset = eval("Datasets.load_%s()"%dataset_name)
 
 classes = set([example[-1] for example in dataset])
 
@@ -41,7 +47,7 @@ for i in range(number_experiments):
 		t1 = timeit.default_timer()
 		v_net_opt, output_by_iteration = MLP_CS_W.run(X_train, X_val, y_train, y_val, n_eggs=p, max_iter = max_iter, check_gloss=check_gloss, n_hidden=n_hidden, n_output=len(classes))
 		t2 = timeit.default_timer()
-		Results.print_results_cs(v_net_opt, output_by_iteration, "results/output_mlp_cs_%s_%d.csv"%(dataset_name, i), fn)
+		Results.print_results_cs(v_net_opt, output_by_iteration, "results/output_mlp_cs_%s_%d.csv"%(dataset_name, i+1), fn)
 		results.append ([Results.run_in_test_set_cs(v_net_opt, X_test, y_test, fn), t2-t1])
 		print ("runtime: %f s"%(t2-t1))
 
@@ -62,7 +68,7 @@ for i in range(number_experiments):
 		network, output_by_iteration = Backpropagation.backpropagation(X_train, l_rate, max_iter, n_hidden, n_outputs=len(classes))
 		t2 = timeit.default_timer()
 		
-		with open('results/output_backpropagation_%s_%d.csv'%(dataset_name, i), 'w') as f:
+		with open('results/output_backpropagation_%s_%d.csv'%(dataset_name, i+1), 'w') as f:
 			writer = csv.writer(f)
 			for iteration, error, hidden, conn in output_by_iteration:
 				writer.writerow([iteration, error, hidden, conn])
@@ -83,9 +89,9 @@ for i in range(number_experiments):
 	else:
 		p = int(sys.argv[sys.argv.index("--p") + 1])
 		check_gloss = int(sys.argv[sys.argv.index("--gloss") + 1])
-		inertia_weight = float(sys.argv[sys.argv.index("--inertia") + 1])
 		if algorithm == "pso":
 			#Parse parameters
+			inertia_weight = float(sys.argv[sys.argv.index("--inertia") + 1])
 			c1 = float(sys.argv[sys.argv.index("--c1") + 1])
 			c2 = float(sys.argv[sys.argv.index("--c2") + 1])
 			method = MLP_PSO_Classic
@@ -101,6 +107,7 @@ for i in range(number_experiments):
 			t2 = timeit.default_timer()	
 
 		elif algorithm == "fips":
+			inertia_weight = float(sys.argv[sys.argv.index("--inertia") + 1])
 			neighborhood_size = int(sys.argv[sys.argv.index("--k") + 1])
 			weight_method = sys.argv[sys.argv.index("--wmethod") + 1]
 			method = MLP_PSO_FIPS
@@ -113,7 +120,11 @@ for i in range(number_experiments):
 
 			t2 = timeit.default_timer()	
 
+			fips_method = "_%s"%(weight_method)
+
+
 		elif algorithm == "ring":
+			inertia_weight = float(sys.argv[sys.argv.index("--inertia") + 1])
 			neighborhood_size = int(sys.argv[sys.argv.index("--k") + 1])
 			c1 = float(sys.argv[sys.argv.index("--c1") + 1])
 			c2 = float(sys.argv[sys.argv.index("--c2") + 1])
@@ -141,11 +152,11 @@ for i in range(number_experiments):
                                             v_lim=[-1, 1], p_lim=[-1, 1])
 			t2 = timeit.default_timer()	
 		
-		Results.print_results(v_net_opt, output_by_iteration, "results/output_mlp_%s_%s_%d.csv"%(algorithm, dataset_name, i), method)
+		Results.print_results(v_net_opt, output_by_iteration, "results/output_mlp_%s%s_%s_%d.csv"%(algorithm, fips_method, dataset_name, i+1), method)
 		results.append ([Results.run_in_test_set(v_net_opt, X_test, y_test, MLP_PSO_Classic), t2-t1])
 		print ("runtime: %f s"%(t2-t1))
 
-with open('results/results_%s_%s.csv'%(algorithm, dataset_name), 'w') as f:
+with open('results/results_%s%s_%s.csv'%(algorithm, fips_method, dataset_name), 'w') as f:
 	writer = csv.writer(f)
 	for accurancy, runtime in results:
 		writer.writerow([accurancy, runtime])
