@@ -1,48 +1,64 @@
-Diretivas comuns em todos os algoritmos:
---dataset <nome do dataset> : pode ser digits, iris, seeds, heart, cancer e wine
---alg <nome do algoritmo> : cs, bp, pso, fips, ring, psow
---hidden <qtd neurônios na camada escondida>
---maxiter <máximo de interações (ou épocas, no caso do backpropagation)>
---trial <quantidade de vezes que vamos rodar cada algoritmo>
 
-Diretivas para todos os algoritmos, exceto o backpropagation:
---p <tamanho da população de ovos ou partículas>
---gloss <valor do gloss>
+### Intruções para execução de experimentos
+- Diretivas comuns em todos os algoritmos:
+    ```
+    --dataset <nome do dataset> : pode ser digits, iris, seeds, heart, cancer e wine
+    --alg <nome do algoritmo> : cs, bp, pso, fips, ring, psow
+    --hidden <qtd neurônios na camada escondida>
+    --maxiter <máximo de interações (ou épocas, no caso do backpropagation)>
+    --trial <quantidade de vezes a executar cada algoritmo>
+    ```
 
-Diretiva específica do backpropagation: 
---rate <valor do rate>
+- Diretivas para todos os algoritmos, exceto o backpropagation:
+    ```
+    --p <tamanho da população de ovos ou partículas>
+    --gloss <valor do gloss>
+    ```
 
-Diretivas específicas de todos os pso's, exceto psow:
---inertia <valor da inércia>
+- Diretiva específica do backpropagation: 
+    ```
+    --rate <valor do learning rate>
+    ```
 
-Específicos do pso clássico, do pso W e do ring:
---c1 <valor>
---c2 <valor>
+- Diretivas específicas de todos os PSO's, exceto PSO-W:
+    ```
+    --inertia <valor da inércia>
+    ```
 
-Específicos do fips e do ring:
---k <quantidade de vizinhos>
+- Específicos do CLASSIC PSO, do PSO-W e do RING:
+    ```
+    --c1 <valor>
+    --c2 <valor>
+    ```
 
-Só fips:
---wmethod <weight method>: static, distance ou fitness
+- Específicos do FIPS e RING:
+    ```
+    --k <quantidade de vizinhos>
+    ```
 
-Exemplos de linhas de comando:
+- Exclusivo do FIPS:
+    ```
+    --wmethod <weight method>: static, distance ou fitness
+    ```
 
-Cuckoo:	
-$ python3 Main.py --dataset iris --hidden 3 --trial 30 --maxiter 1000 --gloss 500 --alg cs --p 30
+##### Exemplos de linhas de comando:
 
-FIPS: 	
-$ python3 Main.py --hidden 3 --trial 30 --maxiter 1000 --gloss 500 --alg fips --p 30 --wmethod static --inertia 0.8 --k 2 --dataset iris
+- **Cuckoo**:	
+    > _$ python3 Main.py --dataset iris --hidden 3 --trial 30 --maxiter 1000 --gloss 500 --alg cs --p 30_
 
-Backpropagation:
-$ python3 Main.py --dataset iris --hidden 3 --trial 30 --maxiter 1000 --gloss 500 --alg bp --rate 0.3
+- **FIPS**: 	
+    > _$ python3 Main.py --hidden 3 --trial 30 --maxiter 1000 --gloss 500 --alg fips --p 30 --wmethod static --inertia 0.8 --k 2 --dataset iris_
 
-PSO Clássico:
-$ python3 Main.py --dataset iris --hidden 3 --trial 30 --maxiter 1000 --gloss 500 --alg pso --c1 2.55 --c2 2.55 --p 30 --inertia 0.2
+- **Backpropagation**:
+    > _$ python3 Main.py --dataset iris --hidden 3 --trial 30 --maxiter 1000 --gloss 500 --alg bp --rate 0.3_
 
-PSO_W
-$ python3 Main.py --dataset iris --hidden 3 --trial 30 --maxiter 1000 --gloss 500 --alg psow --c1 2.55 --c2 2.55 --p 30
+- **PSO Clássico**:
+    > _$ python3 Main.py --dataset iris --hidden 3 --trial 30 --maxiter 1000 --gloss 500 --alg pso --c1 2.55 --c2 2.55 --p 30 --inertia 0.2_
 
-RING:
-$ python3 Main.py --dataset iris --hidden 3 --trial 30 --maxiter 1000 --gloss 500 --alg ring --c1 2.55 --c2 2.55 --p 30 --inertia 0.2 --k 2
+- **PSO_W**
+    > _$ python3 Main.py --dataset iris --hidden 3 --trial 30 --maxiter 1000 --gloss 500 --alg psow --c1 2.55 --c2 2.55 --p 30_
+
+- **RING**:
+    > _$ python3 Main.py --dataset iris --hidden 3 --trial 30 --maxiter 1000 --gloss 500 --alg ring --c1 2.55 --c2 2.55 --p 30 --inertia 0.2 --k 2_
 
 
