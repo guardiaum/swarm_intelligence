@@ -11,6 +11,7 @@ from optimization_algorithms import MLP_PSO_W
 import sys
 import timeit
 
+
 #Parse common parameters
 dataset_name = sys.argv[sys.argv.index("--dataset") + 1]
 algorithm = sys.argv[sys.argv.index("--alg") + 1]
@@ -41,6 +42,7 @@ arguments = ""
 results = []
 
 for i in range(number_experiments):
+	print ("\nITERATION %d: "%(i+1))
 	if algorithm == "cs":
 		p = int(sys.argv[sys.argv.index("--p") + 1])
 		check_gloss = int(sys.argv[sys.argv.index("--gloss") + 1])
@@ -156,7 +158,15 @@ for i in range(number_experiments):
 		results.append ([Results.run_in_test_set(v_net_opt, X_test, y_test, MLP_PSO_Classic), t2-t1])
 		print ("runtime: %f s"%(t2-t1))
 
+best = 0.0
+best_time = float("inf")
+
 with open('results/results_%s%s_%s.csv'%(algorithm, fips_method, dataset_name), 'w') as f:
 	writer = csv.writer(f)
 	for accurancy, runtime in results:
 		writer.writerow([accurancy, runtime])
+		if (accurancy > best) or (accurancy == best and runtime < best_time):
+			best = accurancy
+			best_time = runtime
+
+print ("\nBest of 30: Iteration %d"% (results.index([best, best_time])+1))
