@@ -101,7 +101,5 @@ ENV/
 # mypy
 .mypy_cache/
 others/
-results/*
-!results/.gitkeep
 
 
