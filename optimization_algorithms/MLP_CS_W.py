@@ -6,14 +6,14 @@ import copy
 import beans.function as fn
 
 
-def run(X_train, X_val, y_train, y_val, check_gloss, n_hidden, n_output):
+def run(X_train, X_val, y_train, y_val, n_eggs, max_iter, check_gloss, n_hidden, n_output):
     cf = Config()
 
     # input neurons
     n_input = len(X_train[0])
 
     # initialize population
-    n_eggs = cf.get_population_size()
+    #n_eggs = cf.get_population_size()
     population = [[]] * n_eggs
     for egg in range(n_eggs):
         population[egg] = id.Individual(cf, n_input, n_hidden, n_output, X_train, y_train)
@@ -31,10 +31,10 @@ def run(X_train, X_val, y_train, y_val, check_gloss, n_hidden, n_output):
     hist = []
     output_by_iteration = []
 
-    while iteration < cf.get_iteration() and egg_loss < 5 and stagnation_count < 3:
+    while iteration < max_iter and egg_loss < 5 and stagnation_count < 3:
 
     
-    #for iteration in range(cf.get_iteration()):
+    #for iteration in range(max_iter):
         ##print("iteration: {}".format(iteration))
         # computes eggs local best (pBest) with lower training error
 
@@ -84,7 +84,7 @@ def run(X_train, X_val, y_train, y_val, check_gloss, n_hidden, n_output):
 
 
         # get error in validation ser for v_net_current and v_net_opt
-        if ((iteration > check_gloss) and (iteration % 100 == 0)) or iteration == cf.get_iteration() - 1:
+        if ((iteration > check_gloss) and ((iteration + 1) % 100 == 0)) or iteration == max_iter - 1:
 
             v_net_current = fn.forward_propagate(Bestnet, X_val, y_val)
             min_net_from_hist = copy.deepcopy(min(hist, key=lambda x: x['error']))

@@ -211,7 +211,7 @@ def run(X_train, X_val, y_train, y_val,
         hist.append(g_best)
 
         # get error in validation ser for v_net_current and v_net_opt
-        if (i > check_gloss) and (i % 100 == 0):
+        if ((i > check_gloss) and ((i + 1) % 100 == 0)) or i == max_iter - 1:
 
             v_net_current = forward_propagate(g_best, X_val, y_val)
             min_v_net_from_hist = min(hist, key=lambda x: x['particle']['error'])

@@ -8,7 +8,7 @@ class Config:
     __Step_Size = 0.01
     __Dimension = 10 # The number of dimension
     __Trial = 1
-    __Iteration = 1000
+    __Iteration = 5000
 
     @classmethod
     def get_population_size(cls):

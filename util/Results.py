@@ -33,6 +33,7 @@ def run_in_test_set(v_net_opt, X_test, y_test, method):
     accuracy = (1 - test['particle']['error']) * 100
     print("v_net_opt error on test set: {}".format(test['particle']['error']))
     print("v_net_opt accuracy on test set: {}%".format(accuracy))
+    return accuracy
 
 
 def print_results_cs(v_net_opt, output_by_iteration, filename, method):
@@ -67,3 +68,4 @@ def run_in_test_set_cs(v_net_opt, X_test, y_test, method):
     accuracy = (1 - test['error']) * 100
     print("v_net_opt error on test set: {}".format(test['error']))
     print("v_net_opt accuracy on test set: {}%".format(accuracy))
+    return accuracy
