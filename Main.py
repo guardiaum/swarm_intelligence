@@ -128,7 +128,6 @@ for i in range(number_experiments):
 			t2 = timeit.default_timer()
 
 		elif algorithm == "psow":
-			neighborhood_size = int(sys.argv[sys.argv.index("--k") + 1])
 			c1 = float(sys.argv[sys.argv.index("--c1") + 1])
 			c2 = float(sys.argv[sys.argv.index("--c2") + 1])
 			method = MLP_PSO_RING
