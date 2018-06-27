@@ -16,7 +16,6 @@ dataset_name = sys.argv[sys.argv.index("--dataset") + 1]
 algorithm = sys.argv[sys.argv.index("--alg") + 1]
 n_hidden = int(sys.argv[sys.argv.index("--hidden") + 1])
 max_iter = int(sys.argv[sys.argv.index("--maxiter") + 1])
-p = int(sys.argv[sys.argv.index("--p") + 1])
 number_experiments = int(sys.argv[sys.argv.index("--trial") + 1])
 
 dataset = eval("Datasets.load_%s()"%dataset_name)
@@ -37,6 +36,7 @@ results = []
 
 for i in range(number_experiments):
 	if algorithm == "cs":
+		p = int(sys.argv[sys.argv.index("--p") + 1])
 		check_gloss = int(sys.argv[sys.argv.index("--gloss") + 1])
 		t1 = timeit.default_timer()
 		v_net_opt, output_by_iteration = MLP_CS_W.run(X_train, X_val, y_train, y_val, n_eggs=p, max_iter = max_iter, check_gloss=check_gloss, n_hidden=n_hidden, n_output=len(classes))
@@ -81,6 +81,7 @@ for i in range(number_experiments):
 		results.append ([accuracy, t2-t1])
 		
 	else:
+		p = int(sys.argv[sys.argv.index("--p") + 1])
 		check_gloss = int(sys.argv[sys.argv.index("--gloss") + 1])
 		inertia_weight = float(sys.argv[sys.argv.index("--inertia") + 1])
 		if algorithm == "pso":
